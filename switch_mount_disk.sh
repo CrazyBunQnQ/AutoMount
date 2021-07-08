@@ -49,22 +49,22 @@ if [ $scene -eq 1 ]; then
   fi
   diskName=${diskName%:}
   echo "获取超过 1T 的磁盘名称: $diskName"
-  # TODO 分区, 整块磁盘分一个区
+  # 分区, 整块磁盘分一个区
   echo "磁盘分区: sudo parted $diskName mkpart primary 2048s 100%"
-  # sudo parted $diskName mkpart primary 2048s 100%
+  sudo parted $diskName mkpart primary 2048s 100%
   # 查看空间上 T 的分区
   dir=$(fdisk -l | grep -A 3 "Device " | grep "T " | awk '{print$1}')
   echo "全目录: $dir"
   lastDir="/${dir##*/}"
   echo "最终目录名: $lastDir"
-  # TODO 分区格式化
+  # 分区格式化
   echo "分区格式化: sudo mkfs.ext4 $dir"
-  # sudo mkfs.ext4 $dir
+  sudo mkfs.ext4 $dir
   echo "清空原 /csa 目录..."
   sudo rm -rf /csa/*
-  # TODO 挂载分区到 /csa
+  # 挂载分区到 /csa
   echo "挂载分区 $dir 到 /csa: sudo mount $dir /csa/"
-  # sudo mount $dir /csa/
+  sudo mount $dir /csa/
   # 查看磁盘 uuid
   uuid=$(ls -l /dev/disk/by-uuid | grep $lastDir | awk '{print$9}')
   echo "$lastDir 的磁盘 uuid:  $uuid"
