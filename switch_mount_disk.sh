@@ -23,6 +23,7 @@ if [ ! -d "$bakDir" ]; then
   csaon=0
   echo "$bakDir 备份目录不存在, 创建备份目录..."
   sudo cp -rp /csa $bakDir
+  sudo rm -rf $bakDir/applog/*
 fi
 # 情况一: /csa 是 SSD 系统盘的一个目录
 #         需要检测其他硬盘，且挂载硬盘分区 /dev/xxx 到 /csa 目录, 且写入 /etc/fstab
