@@ -1,11 +1,14 @@
+#!/bin/bash
+
 # 目录配置
 bakDir=/root/csabak
 fstabFile=/etc/fstab
 
 # test
-fstabFile=/root/fstab.bak
+# fstabFile=/root/fstab.bak
 
 # mysql 状态
+csaon=1
 mysqlon=1
 # 大前提: 母盘 SSD 系统硬盘中已存在基础态势系统目录
 if [ ! -d "$bakDir" ]; then
@@ -13,9 +16,11 @@ if [ ! -d "$bakDir" ]; then
     echo "/csa" 目录不存在
     exit 1
   fi
-  echo "停止 mysql 服务..."
+  echo "停止 mysql 和 csa 服务..."
   sudo service mysql stop
+  sudo service csa stop
   mysqlon=0
+  csaon=0
   echo "$bakDir 备份目录不存在, 创建备份目录..."
   sudo cp -rp /csa $bakDir
 fi
@@ -42,6 +47,10 @@ else
       echo "启动 mysql 服务"
       sudo service mysql start
     fi
+    if [ $csaon -eq 0 ]; then
+      echo "启动 csa 服务"
+      sudo service csa start
+    fi
     exit 0
   fi
   scene=2
@@ -58,8 +67,25 @@ if [ $scene -eq 1 ]; then
       echo "启动 mysql 服务"
       sudo service mysql start
     fi
+    if [ $csaon -eq 0 ]; then
+      echo "启动 csa 服务"
+      sudo service csa start
+    fi
     exit 1
   fi
+  echo "开始迁移应用到大容量硬盘中..."
+  if [ $mysqlon -eq 1 ]; then
+    echo "停止 mysql 服务..."
+    sudo service mysql stop
+    mysqlon=0
+  fi
+  if [ $mysqlon -eq 1 ]; then
+    echo "停止 csa 服务..."
+    sudo service csa stop
+    csaon=0
+  fi
+  mysqlon=0
+  csaon=0
   diskName=${diskName%:}
   echo "获取超过 1T 的磁盘名称: $diskName"
   # 分区, 整块磁盘分一个区
@@ -91,14 +117,13 @@ if [ $scene -eq 1 ]; then
   fi
   echo "写入挂载配置: echo \"/dev/disk/by-uuid/$uuid /csa ext4 defaults 0 0\" >> $fstabFile"
   echo "/dev/disk/by-uuid/$uuid /csa ext4 defaults 0 0" >> $fstabFile
-  echo "拷贝服务到 /csa 目录并授权"
-  sudo cp -rp /root/csa/* /csa/*
-  sudo chmod 755 /csa
-  sudo chown ryz /csa
-  if [ $mysqlon -eq 0 ]; then
-    echo "启动 mysql 服务"
-    sudo service mysql start
-  fi
+  sudo rm -rf /csa/*
+  echo "拷贝服务到 /csa 目录并授权: sudo cp -rp $bakDir/* /csa/"
+  sudo cp -rp $bakDir/* /csa/
+  # sudo chmod 755 /csa
+  # sudo chown ryz /csa
+  echo "启动 mysql 服务"
+  sudo service mysql start
 else
   echo "情况二: /csa 挂载到非系统盘中但是挂载异常"
 fi
