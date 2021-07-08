@@ -19,6 +19,8 @@ if [ ! -d "$bakDir" ]; then
   echo "停止 mysql 和 csa 服务..."
   sudo service mysql stop
   sudo service csa stop
+  # 杀掉所有 java 相关进程
+  # sudo kill -9 $(ps -ef | grep java | grep -v grep | awk '{print$2}')
   mysqlon=0
   csaon=0
   echo "$bakDir 备份目录不存在, 创建备份目录..."
@@ -123,8 +125,10 @@ if [ $scene -eq 1 ]; then
   sudo cp -rp $bakDir/* /csa/
   # sudo chmod 755 /csa
   # sudo chown ryz /csa
-  echo "启动 mysql 服务"
+  echo "启动 mysql 和 csa 服务"
   sudo service mysql start
+  sudo service csa start
+  cat $fstabFile
 else
   echo "情况二: /csa 挂载到非系统盘中但是挂载异常"
 fi
