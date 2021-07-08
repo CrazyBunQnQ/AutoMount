@@ -12,7 +12,7 @@ if [ ! -d "$bakDir" ]; then
     exit 1
   fi
   echo "$bakDir 备份目录不存在, 创建备份目录..."
-  sudo cp -r /csa $bakDir
+  sudo cp -rp /csa $bakDir
 fi
 # 情况一: /csa 是 SSD 系统盘的一个目录
 #         需要检测其他硬盘，且挂载硬盘分区 /dev/xxx 到 /csa 目录, 且写入 /etc/fstab
@@ -79,7 +79,7 @@ if [ $scene -eq 1 ]; then
   echo "写入挂载配置: echo \"/dev/disk/by-uuid/$uuid /csa ext4 defaults 0 0\" >> $fstabFile"
   echo "/dev/disk/by-uuid/$uuid /csa ext4 defaults 0 0" >> $fstabFile
   echo "拷贝服务到 /csa 目录并授权"
-  sudo cp -r /root/csa/* /csa/*
+  sudo cp -rp /root/csa/* /csa/*
   sudo chmod 755 /csa
   sudo chown ryz /csa
 else
