@@ -5,12 +5,17 @@ fstabFile=/etc/fstab
 # test
 fstabFile=/root/fstab.bak
 
+# mysql 状态
+mysqlon=1
 # 大前提: 母盘 SSD 系统硬盘中已存在基础态势系统目录
 if [ ! -d "$bakDir" ]; then
   if [ ! -d "/csa" ]; then
     echo "/csa" 目录不存在
     exit 1
   fi
+  echo "停止 mysql 服务..."
+  sudo service mysql stop
+  mysqlon=0
   echo "$bakDir 备份目录不存在, 创建备份目录..."
   sudo cp -rp /csa $bakDir
 fi
@@ -33,6 +38,10 @@ else
   # 校验磁盘是否存在, 已存在则系统正常
   if [ $(fdisk -l | grep -c "$curMount ") -gt 0 ]; then
     echo "磁盘挂载正常"
+    if [ $mysqlon -eq 0 ]; then
+      echo "启动 mysql 服务"
+      sudo service mysql start
+    fi
     exit 0
   fi
   scene=2
@@ -45,6 +54,10 @@ if [ $scene -eq 1 ]; then
   # 不存在的话直接结束
   if [ "$diskName" = "" ]; then
     echo "不存在额外硬盘，继续使用系统盘"
+    if [ $mysqlon -eq 0 ]; then
+      echo "启动 mysql 服务"
+      sudo service mysql start
+    fi
     exit 1
   fi
   diskName=${diskName%:}
@@ -82,6 +95,10 @@ if [ $scene -eq 1 ]; then
   sudo cp -rp /root/csa/* /csa/*
   sudo chmod 755 /csa
   sudo chown ryz /csa
+  if [ $mysqlon -eq 0 ]; then
+    echo "启动 mysql 服务"
+    sudo service mysql start
+  fi
 else
   echo "情况二: /csa 挂载到非系统盘中但是挂载异常"
 fi
