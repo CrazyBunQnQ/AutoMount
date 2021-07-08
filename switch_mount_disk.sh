@@ -78,8 +78,10 @@ if [ $scene -eq 1 ]; then
   fi
   echo "写入挂载配置: echo \"/dev/disk/by-uuid/$uuid /csa ext4 defaults 0 0\" >> $fstabFile"
   echo "/dev/disk/by-uuid/$uuid /csa ext4 defaults 0 0" >> $fstabFile
-  echo "拷贝服务到 /csa 目录"
-  cp -r /root/csa/* /csa/*
+  echo "拷贝服务到 /csa 目录并授权"
+  sudo cp -r /root/csa/* /csa/*
+  sudo chmod 755 /csa
+  sudo chown ryz /csa
 else
   echo "情况二: /csa 挂载到非系统盘中但是挂载异常"
 fi
