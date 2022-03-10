@@ -104,8 +104,8 @@ if [ $scene -eq 1 ]; then
   sudo parted $diskName mkpart primary 2048s 100%
   echo "分区结果:"
   sudo parted $diskName p
-  # 查看空间上 T 的分区
-  dir=$(fdisk -l | grep -A 3 "Device " | grep "T " | awk '{print$1}')
+  # 查看空间上 T 的分区, 已经分区了，只可能两个区，一个引导一个文件系统
+  dir=$(fdisk -l | grep $diskName | grep 'Linux filesystem' | awk '{print$1}')
   lastDir="/${dir##*/}"
   echo "全目录: $dir, 最终目录名: $lastDir"
   # 分区格式化
