@@ -4,6 +4,10 @@
 bakDir=/root/csabak
 fstabFile=/etc/fstab
 
+# 查找的数据盘最小可用空间(G)
+# minSpace=900
+# minSpace=$((minSpace*1024*1024*1024))
+
 # test
 # fstabFile=/root/fstab.bak
 
@@ -63,7 +67,7 @@ fi
 # 不同情况不同处理
 if [ $scene -eq 1 ]; then
   # TODO 只取排除系统盘后的第一条结果
-  diskName=$(fdisk -l | grep "Disk /dev/" | grep " TiB" | awk '{print$2}')
+  diskName=$(fdisk -l | grep "Disk /dev/" | awk '$5>966367641600{print$2}')
   # 不存在的话直接结束
   if [ "$diskName" = "" ]; then
     echo "不存在额外硬盘，继续使用系统盘"
